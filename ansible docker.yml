@@ -1,0 +1,37 @@
+- hosts: localhost
+  tasks:
+  - name: setting up docker yum conf
+    yum_repository:
+      name: dockername
+      description: description for docker
+      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      gpgcheck: no
+
+  - command: "yum install docker-ce --nobest -y"
+
+  - command: "systemctl start docker"
+
+  - command: "yum install python36 -y"
+
+  - name: Installing docker sdk for python3
+    command: " pip3 install docker"
+  - name: make folder for hold the html files
+    file:
+      path: /webpages
+      state: directory
+  - name: Copying html files
+    copy:
+     src: "pk.html"
+     dest: "/wsdocker/"
+
+  - name: install docker httpd  image
+    docker_container:
+      name: webserver
+      image: httpd
+      state: present
+      exposed_ports:
+      - "80"
+      ports:
+      - "5555:80"
+      volumes:
+      - /wsdocker:/usr/local/apache2/htdocs/
